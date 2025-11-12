@@ -108,13 +108,16 @@ def _sleep_until(target_dt: datetime, tz: pytz.BaseTzInfo):
 def _run_once() -> bool:
     """Trigger the workflow once; return True if success."""
     try:
-        result = coze.workflows.runs.create(
-            workflow_id=WORKFLOW_ID,
-            parameters={},
-            bot_id=None
-        )
+        result = coze.workflows.runs.create(workflow_id=WORKFLOW_ID)
         logging.info("Workflow run success: %s", getattr(result, "data", result))
         return True
+    except cozepy.exception.CozeAPIError as api_err:
+        # 对 6039 特殊处理：平台提示不支持中断，可视为“已提交”成功，不再重试
+        if getattr(api_err, "code", None) == 6039:
+            logging.warning("Workflow run submitted (code=6039, interruption not supported), treating as success.")
+            return True
+        logging.warning("Workflow run failed: %s", api_err, exc_info=True)
+        return False
     except Exception as e:
         logging.warning("Workflow run failed: %s", e, exc_info=True)
         return False
