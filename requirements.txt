@@ -1,0 +1,5 @@
+# Core dependencies
+cozepy
+pytz
+# Optional: timezone database for some environments
+tzdata
