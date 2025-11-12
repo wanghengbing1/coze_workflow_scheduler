@@ -108,11 +108,7 @@ def _sleep_until(target_dt: datetime, tz: pytz.BaseTzInfo):
 def _run_once() -> bool:
     """Trigger the workflow once; return True if success."""
     try:
-        result = coze.workflows.runs.create(
-            workflow_id=WORKFLOW_ID,
-            parameters={},
-            interrupt_enabled=False
-        )
+        result = coze.workflows.runs.create(workflow_id=WORKFLOW_ID)
         logging.info("Workflow run success: %s", getattr(result, "data", result))
         return True
     except Exception as e:
