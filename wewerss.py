@@ -13,6 +13,7 @@ from threading import Event
 
 try:
     from cozepy import Coze, TokenAuth, COZE_CN_BASE_URL
+    from cozepy.exception import CozeAPIError
 except Exception as e:
     raise RuntimeError("Failed to import cozepy. Please ensure requirements are installed.") from e
 
@@ -111,7 +112,7 @@ def _run_once() -> bool:
         result = coze.workflows.runs.create(workflow_id=WORKFLOW_ID)
         logging.info("Workflow run success: %s", getattr(result, "data", result))
         return True
-    except cozepy.exception.CozeAPIError as api_err:
+    except CozeAPIError as api_err:
         # 对 6039 特殊处理：平台提示不支持中断，可视为“已提交”成功，不再重试
         if getattr(api_err, "code", None) == 6039:
             logging.warning("Workflow run submitted (code=6039, interruption not supported), treating as success.")
