@@ -24,4 +24,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY wewerss.py ./wewerss.py
 
-CMD ["python", "wewerss.py"]
+# 直接启动常驻守护进程
+CMD ["python", "-u", "wewerss.py"]
