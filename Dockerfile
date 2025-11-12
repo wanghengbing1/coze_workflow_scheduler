@@ -16,6 +16,8 @@ ENV LOG_LEVEL="INFO"
 ENV JITTER_MAX_SECONDS="3"
 ENV SLEEP_CHUNK_SECONDS="5"
 ENV STOP_ON_SHUTDOWN="true"
+ENV RUN_ONCE="1"
+ENV SINGLE_RUN_TIMEOUT="1800"
 
 WORKDIR /app
 
@@ -24,5 +26,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY wewerss.py ./wewerss.py
 
-# 直接启动常驻守护进程
+# 兼容平台“单次调用”模式：默认单次执行，可覆盖
 CMD ["python", "-u", "wewerss.py"]

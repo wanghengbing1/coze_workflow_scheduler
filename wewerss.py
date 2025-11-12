@@ -36,6 +36,8 @@ COZE_REGION = os.getenv("COZE_REGION", "").lower()  # "cn" to use coze.cn
 JITTER_MAX_SECONDS = int(os.getenv("JITTER_MAX_SECONDS", "3"))  # add up to N seconds jitter
 SLEEP_CHUNK_SECONDS = int(os.getenv("SLEEP_CHUNK_SECONDS", "5"))  # countdown sleep chunk
 STOP_ON_SHUTDOWN = os.getenv("STOP_ON_SHUTDOWN", "true").lower() == "true"  # break loops on SIGTERM
+RUN_ONCE = os.getenv("RUN_ONCE", "1").lower() == "1"  # 默认单次
+SINGLE_RUN_TIMEOUT = int(os.getenv("SINGLE_RUN_TIMEOUT", "1800"))  # 秒
 
 if not COZE_API_TOKEN:
     logging.error("Missing COZE_API_TOKEN environment variable.")
@@ -124,9 +126,14 @@ def _run_once() -> bool:
         return False
 
 def _retry_until_success(initial_delay: int = INITIAL_RETRY_DELAY, max_backoff: int = MAX_BACKOFF):
-    """Keep retrying with exponential backoff and optional jitter until success or shutdown."""
+    """Keep retrying with exponential backoff and optional jitter until success or shutdown / timeout."""
+    import time
+    start = time.time()
     delay = max(1, initial_delay)
     while not shutdown_event.is_set():
+        # 全局硬超时保护
+        if time.time() - start > SINGLE_RUN_TIMEOUT:
+            raise RuntimeError(f"Single run timeout ({SINGLE_RUN_TIMEOUT}s) exceeded, aborting.")
         ok = _run_once()
         if ok:
             logging.info("Workflow executed successfully.")
@@ -143,6 +150,14 @@ def _retry_until_success(initial_delay: int = INITIAL_RETRY_DELAY, max_backoff: 
 
 def main():
     tz = pytz.timezone(TIMEZONE_NAME)
+    if RUN_ONCE:
+        # 单次模式：立即执行一次，成功/失败都直接退出
+        logging.info("RUN_ONCE=1，进入单次执行模式")
+        _retry_until_success()
+        logging.info("单次执行完成，脚本退出")
+        return
+
+    # 常驻模式：每日定时循环
     while not shutdown_event.is_set():
         now = datetime.now(tz)
         next_dt = _next_run_datetime(now, tz, SCHEDULE_TIME)

@@ -1,0 +1,33 @@
+[Zeabur] Pod/service-691305f28ec7c18bf5e8f0a5-7fbdcc78bb-2xnlh - Killing: Stopping container coze-workflow
+
+2025-11-12 14:30:31,090 - auto_retry_executor - ERROR - 第 1 次执行失败: Command '['python', 'wewerss.py']' timed out after 300 seconds
+
+2025-11-12 14:30:31,090 - auto_retry_executor - ERROR - 错误类型: TimeoutExpired
+
+2025-11-12 14:30:31,093 - auto_retry_executor - ERROR - 错误详情: Traceback (most recent call last):
+
+  File "/app/auto_retry_executor.py", line 218, in execute_with_retry
+
+    result = target_function(*args, **kwargs)
+
+  File "/app/docker_start.py", line 64, in target_function
+
+    result = subprocess.run(
+
+  File "/usr/local/lib/python3.9/subprocess.py", line 507, in run
+
+    stdout, stderr = process.communicate(input, timeout=timeout)
+
+  File "/usr/local/lib/python3.9/subprocess.py", line 1134, in communicate
+
+    stdout, stderr = self._communicate(input, endtime, timeout)
+
+  File "/usr/local/lib/python3.9/subprocess.py", line 1996, in _communicate
+
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+
+  File "/usr/local/lib/python3.9/subprocess.py", line 1178, in _check_timeout
+
+    raise TimeoutExpired(
+
+subprocess.TimeoutExpired: Command '['python', 'wewerss.py']' timed out after 300 seconds
