@@ -49,6 +49,10 @@ elif COZE_REGION == "cn":
 else:
     base_url = None  # Use cozepy default api.coze.com
 
+# Ensure base_url has protocol prefix
+if base_url and not base_url.startswith(("http://", "https://")):
+    base_url = "https://" + base_url
+
 # Initialize client
 coze = Coze(auth=TokenAuth(token=COZE_API_TOKEN), base_url=base_url)
 
