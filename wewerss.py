@@ -111,9 +111,6 @@ def _run_once() -> bool:
         result = coze.workflows.runs.create(
             workflow_id=WORKFLOW_ID,
             parameters={},
-            bot_id=None,
-            conversation_id=None,
-            additional_messages=None,
             interrupt_enabled=False
         )
         logging.info("Workflow run success: %s", getattr(result, "data", result))
