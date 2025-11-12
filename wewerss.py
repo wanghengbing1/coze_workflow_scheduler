@@ -108,7 +108,14 @@ def _sleep_until(target_dt: datetime, tz: pytz.BaseTzInfo):
 def _run_once() -> bool:
     """Trigger the workflow once; return True if success."""
     try:
-        result = coze.workflows.runs.create(workflow_id=WORKFLOW_ID)
+        result = coze.workflows.runs.create(
+            workflow_id=WORKFLOW_ID,
+            parameters={},
+            bot_id=None,
+            conversation_id=None,
+            additional_messages=None,
+            interrupt_enabled=False
+        )
         logging.info("Workflow run success: %s", getattr(result, "data", result))
         return True
     except Exception as e:
@@ -145,6 +152,9 @@ def main():
         _retry_until_success()
 
 if __name__ == "__main__":
+    # 注册信号处理
+    signal.signal(signal.SIGTERM, _handle_signal)
+    signal.signal(signal.SIGINT, _handle_signal)
     try:
         main()
     except KeyboardInterrupt:
